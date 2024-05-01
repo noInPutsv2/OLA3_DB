@@ -1,55 +1,160 @@
 import express from "express";
 import cors from 'cors'
-import mssql from 'mssql'
+import neo4j from 'neo4j-driver';
 
 // Application start and config
 const app = express();
 const port = 3000;
 app.use(cors())
 
-// DB Config
-const sql = mssql
-
-async function dbQuery(query) {
-  await sql.connect('Server=localhost;Database=ola1_db;User Id=sa;Password=StrPass2222123;TrustServerCertificate=yes;')
-  const result = await sql.query(query)
-  return result
-}
-
 app.get('/answer1', (req, res) => {
-  dbQuery("select DISTINCT cityName FROM city WHERE c40=1").then(result => {
-    res.send(result);
-  }).catch(err => {
-    console.log(err);
-    res.sendStatus("Error");
-  });
+  (async () => {
+    const URI = 'bolt://localhost:7687'
+    const USER = 'neo4j'
+    const PASSWORD = 'abcd1234'
+    let driver
+    var res_list = []
+
+    try {
+      driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD))
+      const { records, summary, keys } = await driver.executeQuery(
+        'MATCH (r:Report) WHERE r.c40 = true RETURN DISTINCT r.city',
+        {},
+        { database: 'dbmain' }
+      )
+
+      records.forEach(record => {
+        if(typeof record._fields[0] === "string") {
+          res_list.push(record._fields[0])
+        }
+      })
+      res.send(res_list);
+      await driver.close()
+    } catch(err) {
+      res.sendStatus(`Connection error\n${err}\nCause: ${err.cause}`)
+      await driver.close()
+    }
+  })();
 });
 
 app.get('/answer2', (req, res) => {
-  dbQuery("SELECT organization_id FROM city WHERE cityName='"+ req.query.city+"'").then(result => {
-    const org_id = result.recordset[0].organization_id
-    dbQuery("SELECT population, population_year FROM city_reduction WHERE organization="+org_id).then(result => {
-      console.log(result)
-    }).catch(err => {
-      console.log(err);
-      res.sendStatus("Error");
-    });
-  }).catch(err => {
-    console.log(err);
-    res.sendStatus("Error");
-  });
+  (async () => {
+    const URI = 'bolt://localhost:7687'
+    const USER = 'neo4j'
+    const PASSWORD = 'abcd1234'
+    let driver
+
+    try {
+      driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD))
+      const { records, summary, keys } = await driver.executeQuery(
+        'MATCH (n:Report) WHERE n.city = "'+ req.query.city +'" RETURN n.population, n.city',
+        {},
+        { database: 'dbmain' }
+      )
+
+      res.send(records[0]._fields);
+      await driver.close()
+    } catch(err) {
+      res.sendStatus(`Connection error\n${err}\nCause: ${err.cause}`)
+      await driver.close()
+    }
+  })();
 });
 
 app.get('/answer3', (req, res) => {
-res.send('Welcome to my server!');
+  (async () => {
+    const URI = 'bolt://localhost:7687'
+    const USER = 'neo4j'
+    const PASSWORD = 'abcd1234'
+    let driver
+
+    try {
+      driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD))
+      const { records, summary, keys } = await driver.executeQuery(
+        'MATCH (r:Report)-[:REPORT_YEAR]->(y:Year) WHERE y.year = 2016 AND r.percentage_reduction_target IS NOT NULL RETURN avg(r.percentage_reduction_target)',
+        {},
+        { database: 'dbmain' }
+      )
+      res.send(records[0]._fields);
+      await driver.close()
+    } catch(err) {
+      res.sendStatus(`Connection error\n${err}\nCause: ${err.cause}`)
+      await driver.close()
+    }
+  })();
 });
 
 app.get('/answer4', (req, res) => {
-res.send('Welcome to my server!');
+  (async () => {
+    const URI = 'bolt://localhost:7687'
+    const USER = 'neo4j'
+    const PASSWORD = 'abcd1234'
+    let driver
+
+    try {
+      driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD))
+      const { records, summary, keys } = await driver.executeQuery(
+        'MATCH (r:Report)-[:FROM_ORGANISATION]->(o:Organisation) WHERE r.gases_included =~ ".*'+req.query.gas+'.*"  RETURN DISTINCT o, r.gases_included',
+        {},
+        { database: 'dbmain' }
+      )
+
+      res.send(records);
+      await driver.close()
+    } catch(err) {
+      res.sendStatus(`Connection error\n${err}\nCause: ${err.cause}`)
+      await driver.close()
+    }
+  })();
 });
 
 app.get('/answer5', (req, res) => {
-res.send('Welcome to my server!');
+  (async () => {
+    const URI = 'bolt://localhost:7687'
+    const USER = 'neo4j'
+    const PASSWORD = 'abcd1234'
+    let driver
+
+    try {
+      driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD))
+      const { records, summary, keys } = await driver.executeQuery(
+        'MATCH (r:Report)-[:COUNTRY_ORIGIN]->(c:Country) WHERE r.gdp =~ "EUR.*" RETURN DISTINCT c, r.gdp',
+        {},
+        { database: 'dbmain' }
+      )
+
+      res.send(records);
+      await driver.close()
+    } catch(err) {
+      res.sendStatus(`Connection error\n${err}\nCause: ${err.cause}`)
+      await driver.close()
+    }
+  })();
+});
+
+// TODO
+app.get('/answer6', (req, res) => {
+  (async () => {
+    const URI = 'bolt://localhost:7687'
+    const USER = 'neo4j'
+    const PASSWORD = 'abcd1234'
+    let driver
+
+    try {
+      driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD))
+      const { records, summary, keys } = await driver.executeQuery(
+        'MATCH (r:Report)-[:COUNTRY_ORIGIN]->(c:Country) WHERE r.gdp =~ "EUR.*" RETURN DISTINCT c, r.gdp',
+        {},
+        { database: 'dbmain' }
+      )
+
+      res.send(records);
+      await driver.close()
+    } catch(err) {
+      res.sendStatus(`Connection error\n${err}\nCause: ${err.cause}`)
+      await driver.close()
+    }
+  })();
 });
 
 app.listen(port, () => {
