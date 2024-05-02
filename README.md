@@ -1,4 +1,4 @@
-# OLA1_-DB
+# OLA3 DB
 Our frontend is displayed with HTML and JS.
 To view the content from the database in the frontend, the backend (Node.js) has to be active.
 The command for running the backend is "node server.mjs". (Must be runned inside frontend_v2 folder)
