@@ -48,22 +48,57 @@ async function answer5() {
     document.getElementById("outputbox").innerHTML = output
 }
 
-function answer6() {
-    alert("Test")
+async function answer6() {
+    const response = await fetch(backendUrl + "answer6")
+    const result = await response.json()
+    
+    var output = []
+    result.forEach((data) => {
+        output.push("<p>" + data._fields[0] + ": (" + data._fields[1] + ")</p>")
+    })
+    document.getElementById("outputbox").innerHTML = output
 }
 
-function answer7() {
-    alert("Test")
+async function answer7() {
+    const response = await fetch(backendUrl + "answer7")
+    const result = await response.json()
+
+    var output = []
+    result.forEach((data) => {
+        output.push("<p>City: " + data._fields[0].properties.city + ". Organisation: "+ data._fields[1].properties.name +"</p>")
+    })
+    document.getElementById("outputbox").innerHTML = output
 }
 
-function answer8() {
-    alert("Test")
+async function answer8() {
+    const response = await fetch(backendUrl + "answer8")
+    const result = await response.json()
+    console.log(result)
+    var output = []
+    result.forEach((data) => {
+        output.push("<p>City: " + data._fields[0] + ". Region: "+ data._fields[1] +"</p>")
+    })
+    document.getElementById("outputbox").innerHTML = output
 }
 
-function answer9() {
-    alert("Test")
+async function answer9() {
+    const response = await fetch(backendUrl + "answer9")
+    const result = await response.json()
+
+    var output = []
+    result.forEach((data) => {
+        output.push("<p>City: " + data._fields[0] + ". Year: "+ data._fields[1] +". Emission baseline: " + data._fields[2] + "</p>")
+    })
+    document.getElementById("outputbox").innerHTML = output
 }
 
-function answer10() {
-    alert("Test")
+async function answer10() {
+    const response = await fetch(backendUrl + "answer10")
+    const result = await response.json()
+    console.log(result)
+    var output = []
+    result.forEach((data) => {
+        output.push("<p>City: " + data._fields[0] + ". Count: "+ data._fields[1].low +"</p>")
+    })
+    document.getElementById("outputbox").innerHTML = output
 }
